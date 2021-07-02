@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+
+    <title>backoffice</title>
+</head>
+
+<style>
+    form{
+       column-rule-style: none;
+        box-shadow: 5px 5px 20px;
+    }
+</style>
+
+<body>
+
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <h2 class="mt-5 mb-3"> Netflix Pro  </h2>
+                <h5 id="subtitle" class="d-inline-block"></h5>
+                <hr/>
+                <form onsubmit="handleSubmit(event)">
+                    <div id="spinner" class="spinner-border spinner-border-sm text-light d-none" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="imageUrl">Insert Images Address</label>
+                        <input id="imageUrl" type="text" class="form-control" style="border-top: none;"
+                        required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Movie Name</label>
+                        <input id="name" type="text" class="form-control" style="border-top: none;"
+                        required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">category</label>
+                        <input id="category" type="text" class="form-control" style="border-top: none;"
+                        required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Product-Description</label>
+                        <textarea id="description" type="text" rows="6" class="form-control"
+                        aria-describedby="event description field" placeholder="Write the movie description"
+                        required></textarea>
+                    </div>
+
+                    
+
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary"
+                            onclick="this.form.classList.add('validated')"><span>Create</span>
+                        </button>
+                        <!-- <button id="delete-btn" type="button" class="btn btn-danger" onclick="cardDelete()">
+                            Delete
+                        </button> -->
+                        <!-- <button type="button" class="btn btn-info"><a href="home.html">Home</a>-</button> -->
+                    </div>
+
+                    <div><span id="alert-box"></span></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+    <script>
+
+
+
+
+
+    
+   
+    
+
+         const cardId = new URLSearchParams(window.location.search).get('id')
+         const endpoint = cardId ? 'https://striveschool-api.herokuapp.com/api/movies/' + cardId : 'https://striveschool-api.herokuapp.com/api/movies/'
+         const method = cardId ? "PUT" : "POST"
+
+         window.onload = async() => {
+             
+             if(cardId){
+                 document.getElementById('subtitle').innerText = 'Edit card'
+                 const submitBtn = document.querySelector('button[type=submit]')
+                 const submitBtnText = document.querySelector('button[type=submit] span')
+
+                 submitBtn.querySelector('span').innerText = 'Edit Card'
+                 submitBtn.classList.remove('btn-primary')
+                 submitBtn.classList.add('btn-success')
+
+
+                 const response = await fetch('https://striveschool-api.herokuapp.com/api/movies/',
+                   {
+                     headers:{"Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGRjNjliYWIzNTgxNzAwMTVjMjI3M2UiLCJpYXQiOjE2MjUwNTc3MjIsImV4cCI6MTYyNjI2NzMyMn0.vvoWn6h9mQZeWRqombS-t4PLljsYKr07IX8SpckI6QQ"}
+                 })
+                 const eventDetails = await response.json()
+
+                 console.log('eventDetails'.eventDetails)
+
+
+                 document.getElementById("name").value = eventDetails.name
+                 document.getElementById("category").value = eventDetails.category
+                 document.getElementById("imageUrl").value = eventDetails.imageUrl
+                 document.getElementById("description").value = eventDetails.description
+                
+             }else{
+                document.getElementById('subtitle').innerText = 'Create an card'
+             }
+         }
+
+
+
+
+        const handleSubmit = async (event) => {
+           event.preventDefault()
+
+            //  isLoading(true)
+
+            // const url = 'https://striveschool-api.herokuapp.com/api/movies/'
+            const myEvent = {
+               
+                name: document.getElementById("name").value,
+                description: document.getElementById("description").value,
+                brand: document.getElementById("imageUrl").value,
+                imageUrl: document.getElementById("description").value,
+                
+            }
+
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method,
+                    
+                    body: JSON.stringify(myEvent),
+                    headers: {
+                        "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGRjNjliYWIzNTgxNzAwMTVjMjI3M2UiLCJpYXQiOjE2MjUwNTc3MjIsImV4cCI6MTYyNjI2NzMyMn0.vvoWn6h9mQZeWRqombS-t4PLljsYKr07IX8SpckI6QQ",
+                        "Content-Type": "application/json",
+                    }
+                })
+
+                
+                if (response.ok) {
+                    const respEvent = await response.json()
+                    if (cardId){
+                        showAlert('success',  "Amazon cart with an id of " + respEvent._id + 'edited sucessfully')
+                    } else{
+                        showAlert('success',  "Amazon cart created successfully with an id of " + respEvent._id + 'edited sucessfully')
+                    }
+                } else {
+                    
+                    if (response.status >= 400 && response.status < 500) {
+                        throw new Error("User generated error, verify the data that you are sending")
+                    } else if (response.status >= 500 && response.status < 600) {
+                        throw new Error("error 500")
+                    }
+                }
+                
+                console.log("You see me? then no exeption was thrown")
+            } catch (err) {
+               
+                console.log(err)
+                alert(err.message)
+            } finally {
+                
+                
+                console.log("finally")
+            }
+        }
+   
+
+
+
+
+       
+    </script>
+    
+
+    
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns"
+        crossorigin="anonymous"></script>
+
+
+</body>
+
+</html>
